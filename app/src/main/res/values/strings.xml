@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TestTask9</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="username">Username</string>
+    <string name="enter">Enter</string>
+    <string name="reset">RESET</string>
+</resources>
