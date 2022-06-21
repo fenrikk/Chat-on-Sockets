@@ -1,4 +1,4 @@
-package model
+package com.nikfen.testtask9.model
 
 data class UsersReceivedDto(val users: List<User>) : Payload
 

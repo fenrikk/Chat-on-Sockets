@@ -1,4 +1,4 @@
-package com.nikfen.testtask9
+package com.nikfen.testtask9.di
 
 import android.app.Application
 import com.nikfen.testtask9.di.dataModule
