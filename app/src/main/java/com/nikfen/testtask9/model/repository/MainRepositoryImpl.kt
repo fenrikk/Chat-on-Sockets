@@ -6,6 +6,7 @@ import com.nikfen.testtask9.model.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
@@ -25,9 +26,16 @@ class MainRepositoryImpl : MainRepository {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private val gson = Gson()
+    private val baseDtoReceived = BehaviorSubject.create<BaseDto>()
+    private val connected = BehaviorSubject.create<Boolean>()
 
     override fun getUsers() {
-        TODO("Not yet implemented")
+        val getUsersDto = GetUsersDto(id)
+        val getUsersJson = gson.toJson(getUsersDto)
+        val getUsersBaseDto = BaseDto(BaseDto.Action.GET_USERS, getUsersJson)
+        val message = gson.toJson(getUsersBaseDto)
+        writer.println(message)
+        writer.flush()
     }
 
     override fun sendMassage() {
@@ -37,24 +45,36 @@ class MainRepositoryImpl : MainRepository {
     override fun connect(username: String) {
         this.username = username
         compositeDisposable.add(
-            requestSocket()
+            requestIp()
                 .doOnNext {
-                    socket = Socket(it.address.hostAddress, 6666)
+                    socket = Socket(it, 6666)
                     socket.soTimeout = 1000
                 }
-                .map { socket }
+                .map {
+                    socket
+                }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     reader = BufferedReader(InputStreamReader(it.getInputStream()))
                     writer = PrintWriter(it.getOutputStream())
-                    while (it.isConnected) {
+                }, {
+                    it.printStackTrace()
+                })
+        )
+        compositeDisposable.add(
+            Observable.interval(1, 1, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    if (socket.isConnected) {
                         try {
                             val line = reader.readLine()
                             val baseDto = gson.fromJson(line, BaseDto::class.java)
                             when (baseDto.action) {
                                 BaseDto.Action.CONNECTED -> handleConnection(baseDto.payload)
                                 BaseDto.Action.PONG -> handlePong(baseDto.payload)
-                                else -> {}
+                                else -> {
+                                    baseDtoReceived.onNext(baseDto)
+                                }
                             }
                         } catch (e: Exception) {
                             Log.d("MyApp", "There are not messages from server")
@@ -66,7 +86,27 @@ class MainRepositoryImpl : MainRepository {
         )
     }
 
-    private fun requestSocket(): Observable<DatagramPacket> {
+    override fun getConnection(): Observable<Boolean> {
+        return connected
+    }
+
+    override fun newMessageReceived(): Observable<MessageDto> {
+        return baseDtoReceived.filter {
+            it.action == BaseDto.Action.NEW_MESSAGE
+        }.map {
+            gson.fromJson(it.payload, MessageDto::class.java)
+        }
+    }
+
+    override fun usersReceived(): Observable<UsersReceivedDto> {
+        return baseDtoReceived.filter {
+            it.action == BaseDto.Action.USERS_RECEIVED
+        }.map {
+            gson.fromJson(it.payload, UsersReceivedDto::class.java)
+        }
+    }
+
+    private fun requestIp(): Observable<String> {
         val socket = DatagramSocket()
         val request = "request".toByteArray()
         val received = DatagramPacket("".toByteArray(), "".toByteArray().size)
@@ -85,7 +125,7 @@ class MainRepositoryImpl : MainRepository {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            received
+            received.address.hostAddress
         }
     }
 
@@ -94,21 +134,23 @@ class MainRepositoryImpl : MainRepository {
         id = connectedDto.id
         val connectDto = ConnectDto(id, username)
         val connectJson = gson.toJson(connectDto)
-        val baseDto = BaseDto(BaseDto.Action.CONNECT, connectJson)
-        val message = gson.toJson(baseDto)
-        writer.println(message)
+        val connectBaseDto = BaseDto(BaseDto.Action.CONNECT, connectJson)
+        val connectMessage = gson.toJson(connectBaseDto)
+        writer.println(connectMessage)
         writer.flush()
+        connected.onNext(true)
         compositeDisposable.add(
             Observable
-                .interval(5, 5, TimeUnit.SECONDS)
+                .interval(1, 5, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     val pingDto = PingDto(id)
                     val pingJson = gson.toJson(pingDto)
-                    val baseDto = BaseDto(BaseDto.Action.PING, pingJson)
-                    val message = gson.toJson(baseDto)
-                    writer.println(message)
+                    val pingBaseDto = BaseDto(BaseDto.Action.PING, pingJson)
+                    val messagePing = gson.toJson(pingBaseDto)
+                    writer.println(messagePing)
                     writer.flush()
+                    Log.d("MyApp", "Ping sent")
                 }, {
                     it.printStackTrace()
                 })

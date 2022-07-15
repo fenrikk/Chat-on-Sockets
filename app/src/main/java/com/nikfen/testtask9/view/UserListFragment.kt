@@ -1,8 +1,7 @@
 package com.nikfen.testtask9.view
 
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,11 +28,14 @@ class UserListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel
         binding.buttonReset.setOnClickListener {
             viewModel.resetUser()
             val action = UserListFragmentDirections.actionUserListFragmentToAuthorizationFragment()
             findNavController().navigate(action)
         }
-        viewModel.connect()
+        viewModel.getUsers().observe(viewLifecycleOwner) {
+
+        }
     }
 }
