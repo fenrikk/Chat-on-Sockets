@@ -23,7 +23,7 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val args = ChatFragmentArgs by navArgs()
+        val args: ChatFragmentArgs by navArgs()
+        binding.userName.text = args.name
     }
 }

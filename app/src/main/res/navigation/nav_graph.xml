@@ -33,8 +33,10 @@
         tools:layout="@layout/fragment_chat" >
 
         <argument
-            android:name="Id"
-            app:argType="string"
-            android:defaultValue="error" />
+            android:name="id"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
 </navigation>

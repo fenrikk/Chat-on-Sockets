@@ -35,7 +35,7 @@ class UserListFragment : Fragment() {
         val userAdapter = UserAdapter(
             onItemClicked = {
                 val action =
-                    UserListFragmentDirections.actionToChat(it.id)
+                    UserListFragmentDirections.actionToChat(it.id, it.name)
                 findNavController().navigate(action)
             }
         )
