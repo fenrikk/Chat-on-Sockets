@@ -11,7 +11,7 @@
         android:label="fragment_authorization"
         tools:layout="@layout/fragment_authorization" >
         <action
-            android:id="@+id/authorization_userList"
+            android:id="@+id/action_to_list"
             app:destination="@id/userListFragment" />
     </fragment>
     <fragment
@@ -20,7 +20,21 @@
         android:label="fragment_user_list"
         tools:layout="@layout/fragment_user_list" >
         <action
-            android:id="@+id/action_userListFragment_to_authorizationFragment"
+            android:id="@+id/action_reset_name"
             app:destination="@id/authorizationFragment" />
+        <action
+            android:id="@+id/action_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.nikfen.testtask9.view.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+
+        <argument
+            android:name="Id"
+            app:argType="string"
+            android:defaultValue="error" />
     </fragment>
 </navigation>

@@ -28,7 +28,7 @@ class AuthorizationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (viewModel.getUsername() != "") {
-            val action = AuthorizationFragmentDirections.authorizationUserList()
+            val action = AuthorizationFragmentDirections.actionToList()
             findNavController().navigate(action)
         }
         binding.enter.setOnClickListener {
@@ -36,7 +36,7 @@ class AuthorizationFragment : Fragment() {
                 Toast.makeText(requireContext(), "Enter username", Toast.LENGTH_LONG).show()
             } else {
                 viewModel.saveUsername(binding.userName.text.toString())
-                val action = AuthorizationFragmentDirections.authorizationUserList()
+                val action = AuthorizationFragmentDirections.actionToList()
                 findNavController().navigate(action)
             }
         }

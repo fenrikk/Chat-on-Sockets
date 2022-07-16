@@ -6,4 +6,5 @@
     <string name="enter">Enter</string>
     <string name="logOut">LOG OUT</string>
     <string name="send">SEND</string>
+    <string name="message">Message</string>
 </resources>

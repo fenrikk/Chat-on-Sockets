@@ -9,7 +9,7 @@ import com.nikfen.testtask9.databinding.UserItemBinding
 import com.nikfen.testtask9.model.User
 
 class UserAdapter(
-    private val onItemClicked: (String) -> Unit
+    private val onItemClicked: (User) -> Unit
 ) :
     ListAdapter<User, UserAdapter.UserViewHolder>(
         UserDiffUtilCallBack()
@@ -27,10 +27,10 @@ class UserAdapter(
 
     class UserViewHolder(private val binding: UserItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: User, onItemClicked: (String) -> Unit) {
+        fun bind(user: User, onItemClicked: (User) -> Unit) {
             binding.userItemText.text = user.name
             binding.root.setOnClickListener {
-                onItemClicked(user.id)
+                onItemClicked(user)
             }
         }
     }
