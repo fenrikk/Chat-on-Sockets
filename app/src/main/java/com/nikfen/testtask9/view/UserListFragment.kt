@@ -61,4 +61,9 @@ class UserListFragment : Fragment() {
             userAdapter.submitList(it)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stop()
+    }
 }

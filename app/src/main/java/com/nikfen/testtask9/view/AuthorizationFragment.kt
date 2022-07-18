@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.nikfen.testtask9.R
 import com.nikfen.testtask9.databinding.FragmentAuthorizationBinding
 import com.nikfen.testtask9.viewModel.AuthorizationViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,7 +34,11 @@ class AuthorizationFragment : Fragment() {
         }
         binding.enter.setOnClickListener {
             if (binding.userName.text.toString() == "") {
-                Toast.makeText(requireContext(), "Enter username", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.enter_username),
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 viewModel.saveUsername(binding.userName.text.toString())
                 val action = AuthorizationFragmentDirections.actionToList()

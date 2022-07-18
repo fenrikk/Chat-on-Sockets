@@ -3,6 +3,7 @@ package com.nikfen.testtask9.model.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.nikfen.testtask9.model.*
+import com.nikfen.testtask9.other.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -29,17 +30,40 @@ class MainRepositoryImpl : MainRepository {
     private val baseDtoReceived = BehaviorSubject.create<BaseDto>()
     private val connected = BehaviorSubject.create<Boolean>()
 
-    override fun getUsers() {
-        val getUsersDto = GetUsersDto(id)
-        val getUsersJson = gson.toJson(getUsersDto)
-        val getUsersBaseDto = BaseDto(BaseDto.Action.GET_USERS, getUsersJson)
-        val message = gson.toJson(getUsersBaseDto)
-        writer.println(message)
-        writer.flush()
+    override fun startReceivingUsers() {
+        compositeDisposable.add(
+            Observable
+                .interval(1, 5, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    val getUsersDto = GetUsersDto(id)
+                    val getUsersJson = gson.toJson(getUsersDto)
+                    val getUsersBaseDto = BaseDto(BaseDto.Action.GET_USERS, getUsersJson)
+                    val messageGetUsers = gson.toJson(getUsersBaseDto)
+                    writer.println(messageGetUsers)
+                    writer.flush()
+                    Log.d("MyApp", "requesting users")
+                }, {
+                    it.printStackTrace()
+                })
+        )
     }
 
-    override fun sendMassage() {
-        TODO("Not yet implemented")
+    override fun sendMassage(receiver: String, message: String) {
+        compositeDisposable.add(
+            Observable.just(message)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    val sendMessageDto = SendMessageDto(id, receiver, it)
+                    val sendMessageJson = gson.toJson(sendMessageDto)
+                    val sendMessageBaseDto = BaseDto(BaseDto.Action.SEND_MESSAGE, sendMessageJson)
+                    val messageSendMessage = gson.toJson(sendMessageBaseDto)
+                    writer.println(messageSendMessage)
+                    writer.flush()
+                }, {
+                    it.printStackTrace()
+                })
+        )
     }
 
     override fun connect(username: String) {
@@ -47,8 +71,8 @@ class MainRepositoryImpl : MainRepository {
         compositeDisposable.add(
             requestIp()
                 .doOnNext {
-                    socket = Socket(it, 6666)
-                    socket.soTimeout = 1000
+                    socket = Socket(it, PORT_TCP)
+                    socket.soTimeout = SERVER_RESPONSE_COUNTDOWN
                 }
                 .map {
                     socket
@@ -106,20 +130,24 @@ class MainRepositoryImpl : MainRepository {
         }
     }
 
+    override fun stop() {
+        compositeDisposable.dispose()
+    }
+
     private fun requestIp(): Observable<String> {
         val socket = DatagramSocket()
-        val request = "request".toByteArray()
+        val request = REQUEST.toByteArray()
         val received = DatagramPacket("".toByteArray(), "".toByteArray().size)
         return Observable.fromCallable {
             socket.send(
                 DatagramPacket(
                     request,
                     request.size,
-                    InetAddress.getByName("255.255.255.255"),
-                    8888
+                    InetAddress.getByName(UDP_ADRESS),
+                    UDP_PORT
                 )
             )
-            socket.soTimeout = 5000
+            socket.soTimeout = SERVER_RESPONSE_COUNTDOWN
             try {
                 socket.receive(received)
             } catch (e: Exception) {
@@ -135,8 +163,8 @@ class MainRepositoryImpl : MainRepository {
         val connectDto = ConnectDto(id, username)
         val connectJson = gson.toJson(connectDto)
         val connectBaseDto = BaseDto(BaseDto.Action.CONNECT, connectJson)
-        val connectMessage = gson.toJson(connectBaseDto)
-        writer.println(connectMessage)
+        val messageConnect = gson.toJson(connectBaseDto)
+        writer.println(messageConnect)
         writer.flush()
         connected.onNext(true)
         compositeDisposable.add(

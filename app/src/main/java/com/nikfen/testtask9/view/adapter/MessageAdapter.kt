@@ -6,10 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.nikfen.testtask9.databinding.MassageItemBinding
-import com.nikfen.testtask9.model.MessageDto
 
 class MessageAdapter :
-    ListAdapter<MessageDto, MessageAdapter.MessageViewHolder>(MessageDiffUtilCallBack()) {
+    ListAdapter<String, MessageAdapter.MessageViewHolder>(MessageDiffUtilCallBack()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         return MessageViewHolder(
@@ -23,17 +22,17 @@ class MessageAdapter :
 
     class MessageViewHolder(private val binding: MassageItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(messageDto: MessageDto) {
-            binding.message.text = messageDto.message
+        fun bind(message: String) {
+            binding.message.text = message
         }
     }
 
-    class MessageDiffUtilCallBack : DiffUtil.ItemCallback<MessageDto>() {
-        override fun areItemsTheSame(oldItem: MessageDto, newItem: MessageDto): Boolean {
-            return oldItem.message == newItem.message
+    class MessageDiffUtilCallBack : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: MessageDto, newItem: MessageDto): Boolean {
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
             return oldItem == newItem
         }
 

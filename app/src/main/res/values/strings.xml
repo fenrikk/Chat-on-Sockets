@@ -7,4 +7,6 @@
     <string name="logOut">LOG OUT</string>
     <string name="send">SEND</string>
     <string name="message">Message</string>
+    <string name="refresh">REFRESH</string>
+    <string name="enter_username">Enter username</string>
 </resources>

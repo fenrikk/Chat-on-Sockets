@@ -24,7 +24,7 @@ class UserListViewModel(
         }
         mainRepository.getConnection()
             .subscribe({
-                mainRepository.getUsers()
+                mainRepository.startReceivingUsers()
             }, {
                 it.printStackTrace()
             })
@@ -43,5 +43,9 @@ class UserListViewModel(
         sharedPreferences.edit {
             putString(USERNAME_SHARED_PREFERENCES, "")
         }
+    }
+
+    fun stop() {
+        mainRepository.stop()
     }
 }

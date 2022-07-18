@@ -7,6 +7,7 @@ import com.nikfen.testtask9.model.repository.MainRepository
 import com.nikfen.testtask9.model.repository.MainRepositoryImpl
 import com.nikfen.testtask9.other.APPLICATION_SHARED_PREFERENCES
 import com.nikfen.testtask9.viewModel.AuthorizationViewModel
+import com.nikfen.testtask9.viewModel.ChatViewModel
 import com.nikfen.testtask9.viewModel.UserListViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -25,5 +26,6 @@ val dataModule = module {
 }
 val viewModelModule = module {
     viewModel { AuthorizationViewModel(get()) }
-    viewModel { UserListViewModel(get(),get()) }
+    viewModel { UserListViewModel(get(), get()) }
+    viewModel { parameters -> ChatViewModel(chatWithId = parameters.get(), get()) }
 }
